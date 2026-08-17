@@ -186,10 +186,6 @@ Hooks.on('getSceneControlButtons', (controls) => {
         onClick: () => {
             if (!hudInstance) hudInstance = new PartyCrunchHUD();
             hudInstance.render(true);
-        },
-        onChange: () => {
-            if (!hudInstance) hudInstance = new PartyCrunchHUD();
-            hudInstance.render(true);
         }
     };
 

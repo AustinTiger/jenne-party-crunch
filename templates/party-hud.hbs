@@ -23,7 +23,7 @@
             <li class="individual-item {{#if this.selected}}selected{{/if}} {{#if this.inSelectedParty}}highlighted{{/if}}" data-action="selectIndividual" data-id="{{this.id}}" data-in-party="{{this.inParty}}">
                 <img src="{{this.img}}" width="32" height="32" />
                 <span class="name">{{this.name}}</span>
-                <span class="status">{{#if this.partyName}} (in {{this.partyName}}){/if}}</span>
+                <span class="status">{{#if this.partyName}} (in {{this.partyName}}){{/if}}</span>
             </li>
             {{else}}
             <li style="justify-content: center; opacity: 0.5;">No Individual Tokens</li>
