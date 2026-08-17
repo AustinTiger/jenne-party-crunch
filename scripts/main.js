@@ -183,7 +183,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
         title: "Party Crunch",
         icon: "fa-solid fa-users-viewfinder",
         button: true,
-        onClick: () => {
+        onChange: () => {
             if (!hudInstance) hudInstance = new PartyCrunchHUD();
             hudInstance.render(true);
         }
@@ -196,8 +196,5 @@ Hooks.on('getSceneControlButtons', (controls) => {
         }
     } else {
         jenneSuite.tools[tool.name] = tool;
-    }
-    if (!jenneSuite.activeTool) {
-        jenneSuite.activeTool = tool.name;
     }
 });
