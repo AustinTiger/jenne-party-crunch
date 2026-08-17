@@ -1,0 +1,9 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / Editor
+node_modules/
+.vscode/
+.idea/

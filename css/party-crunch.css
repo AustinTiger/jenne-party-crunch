@@ -1,0 +1,77 @@
+.jenne-party-crunch-hud {
+    display: flex;
+    gap: 10px;
+    height: 100%;
+}
+.jenne-party-crunch-hud .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+}
+.jenne-party-crunch-hud .panel h3 {
+    text-align: center;
+    border-bottom: 1px solid var(--color-border-light);
+    margin: 0 0 5px 0;
+}
+.jenne-party-crunch-hud ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+.jenne-party-crunch-hud li {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    margin-bottom: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid transparent;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.jenne-party-crunch-hud li:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.jenne-party-crunch-hud li.selected {
+    border-color: var(--color-shadow-primary);
+    background: rgba(0, 100, 200, 0.4);
+}
+.jenne-party-crunch-hud li.highlighted {
+    box-shadow: inset 0 0 5px var(--color-shadow-primary);
+    border-color: var(--color-text-light-highlight);
+}
+.jenne-party-crunch-hud li img {
+    margin-right: 10px;
+    border: 1px solid var(--color-border-dark);
+}
+.jenne-party-crunch-hud li .name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.jenne-party-crunch-hud li .status {
+    font-size: 0.8em;
+    color: var(--color-text-light-highlight);
+    margin-right: 5px;
+}
+.jenne-party-crunch-hud .actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+.jenne-party-crunch-hud button {
+    flex: 1;
+}
+.jenne-party-crunch-hud .uncrunch-btn {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 2px 5px;
+    font-size: 0.8em;
+    background: rgba(200, 50, 50, 0.6);
+}

@@ -1,0 +1,37 @@
+<div class="jenne-party-crunch-hud">
+    <div class="panel parties">
+        <h3>Crunched Parties</h3>
+        <ul class="party-list">
+            {{#each parties}}
+            <li class="party-item {{#if this.selected}}selected{{/if}}" data-action="selectParty" data-id="{{this.id}}">
+                <img src="{{this.img}}" width="32" height="32" />
+                <span class="name">{{this.name}}</span>
+                {{#if this.selected}}
+                <button class="action-btn uncrunch-btn" data-action="uncrunch" data-id="{{this.id}}" title="Uncrunch Party"><i class="fa-solid fa-box-open"></i></button>
+                {{/if}}
+            </li>
+            {{else}}
+            <li style="justify-content: center; opacity: 0.5;">No Crunched Parties</li>
+            {{/each}}
+        </ul>
+        <button class="create-party-btn" data-action="createParty"><i class="fa-solid fa-plus"></i> Create New Party</button>
+    </div>
+    <div class="panel individuals">
+        <h3>Individual Tokens</h3>
+        <ul class="individual-list">
+            {{#each individuals}}
+            <li class="individual-item {{#if this.selected}}selected{{/if}} {{#if this.inSelectedParty}}highlighted{{/if}}" data-action="selectIndividual" data-id="{{this.id}}" data-in-party="{{this.inParty}}">
+                <img src="{{this.img}}" width="32" height="32" />
+                <span class="name">{{this.name}}</span>
+                <span class="status">{{#if this.partyName}} (in {{this.partyName}}){/if}}</span>
+            </li>
+            {{else}}
+            <li style="justify-content: center; opacity: 0.5;">No Individual Tokens</li>
+            {{/each}}
+        </ul>
+        <div class="actions">
+            <button class="add-btn" data-action="addTokens" {{#unless canAdd}}disabled{{/unless}}><i class="fa-solid fa-arrow-left"></i> Add to Party</button>
+            <button class="remove-btn" data-action="removeTokens" {{#unless canRemove}}disabled{{/unless}}>Remove <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+</div>

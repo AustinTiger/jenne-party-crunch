@@ -1,0 +1,44 @@
+{
+  "id": "jenne-party-crunch",
+  "title": "Jenne Party Crunch",
+  "description": "Refactored party management utility. Serialize tokens into a Party Token for cross-scene teleportation.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "Jenne Suite"
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "jenne-suite",
+        "type": "module"
+      },
+      {
+        "id": "jenne-asset-manager",
+        "type": "module"
+      }
+    ]
+  },
+  "esmodules": [
+    "/scripts/main.js",
+    "/scripts/config.js",
+    "/scripts/logger.js",
+    "/scripts/hud.js"
+  ],
+  "styles": [
+    "/css/party-crunch.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json",
+      "flags": {}
+    }
+  ]
+}
