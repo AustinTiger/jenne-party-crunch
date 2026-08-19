@@ -8,20 +8,22 @@ export class PartyCruncher {
 
     static getCrunchedTokens() {
         if (!canvas.scene) return [];
-        return canvas.scene.tokens.filter(t => t.flags[this.FLAG_SCOPE]?.[this.FLAG_KEY] !== undefined);
+        return canvas.scene.tokens.filter(t => t.flags?.[this.FLAG_SCOPE]?.[this.FLAG_KEY] !== undefined);
     }
 
     static getIndividuals() {
         if (!canvas.scene) return [];
         
         // Scene tokens that are NOT crunched tokens
-        let individuals = canvas.scene.tokens.filter(t => t.flags[this.FLAG_SCOPE]?.[this.FLAG_KEY] === undefined).map(t => ({
-            id: t.id,
-            name: t.name,
-            img: t.texture?.src || t.document?.texture?.src,
-            inParty: false,
-            sceneToken: t
-        }));
+        let individuals = canvas.scene.tokens
+            .filter(t => t.flags?.[this.FLAG_SCOPE]?.[this.FLAG_KEY] === undefined)
+            .map(t => ({
+                id: t.id,
+                name: t.name,
+                img: t.texture?.src || t.document?.texture?.src || t.actor?.img || "icons/svg/mystery-man.svg",
+                inParty: false,
+                sceneToken: t
+            }));
 
         // Tokens stored inside crunched tokens
         this.getCrunchedTokens().forEach(partyToken => {
@@ -30,7 +32,7 @@ export class PartyCruncher {
                 individuals.push({
                     id: memberData._id, // original stored id
                     name: memberData.name,
-                    img: memberData.texture?.src,
+                    img: memberData.texture?.src || memberData.img || "icons/svg/mystery-man.svg",
                     inParty: partyToken.id,
                     partyName: partyToken.name,
                     storedData: memberData
@@ -39,28 +41,70 @@ export class PartyCruncher {
         });
 
         // Sort alphabetically
-        individuals.sort((a, b) => a.name.localeCompare(b.name));
+        individuals.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         return individuals;
     }
 
+    /**
+     * Resolves the configured Party Actor from a UUID, ID, or Name.
+     * @returns {Promise<Actor|null>}
+     */
+    static async getPartyActor() {
+        let actorSetting = (game.settings.get(Config.data.modID, "partyActorId") || "").trim();
+        if (!actorSetting) return null;
+
+        // 1. Try fromUuidSync / fromUuid (supports "Actor.id" and compendium UUIDs)
+        try {
+            let actor = fromUuidSync(actorSetting) || (await fromUuid(actorSetting));
+            if (actor?.documentName === "Actor") return actor;
+            if (actor instanceof Actor) return actor;
+        } catch (err) {
+            Logger.debug("fromUuid lookup failed:", err);
+        }
+
+        // 2. Try stripping "Actor." prefix for local actors collection
+        const cleanId = actorSetting.replace(/^Actor\./, "");
+        let localActor = game.actors.get(cleanId);
+        if (localActor) return localActor;
+
+        // 3. Try lookup by raw ID
+        localActor = game.actors.get(actorSetting);
+        if (localActor) return localActor;
+
+        // 4. Try lookup by Actor Name
+        localActor = game.actors.getName(actorSetting);
+        if (localActor) return localActor;
+
+        return null;
+    }
+
     static async createPartyToken() {
-        const actorId = game.settings.get(Config.data.modID, "partyActorId");
-        if (!actorId) {
-            ui.notifications.warn("Please configure a Party Actor ID in the module settings.");
+        if (!canvas.ready || !canvas.scene) {
+            ui.notifications.warn("Please open a Scene before creating a Party Token.");
             return;
         }
-        const actor = game.actors.get(actorId);
+
+        const actor = await this.getPartyActor();
         if (!actor) {
-            ui.notifications.error("Party Actor not found. Check your module settings.");
+            const currentSetting = game.settings.get(Config.data.modID, "partyActorId");
+            if (!currentSetting) {
+                ui.notifications.warn("Please configure a Party Actor in Game Settings -> Module Settings -> Jenne Party Crunch.");
+            } else {
+                ui.notifications.error(`Party Actor "${currentSetting}" not found. Check your module settings.`);
+            }
             return;
         }
         
-        // Spawn at center of screen
-        const center = canvas.clientCoordinatesFromCanvas(window.innerWidth / 2, window.innerHeight / 2);
-        // V14 syntax for getting snapped position might differ, but canvas.grid.getSnappedPosition is standard
-        const point = canvas.grid.getSnappedPosition(center.x, center.y);
+        // Compute center of current viewport / canvas
+        const center = canvas.stage?.pivot ?? { x: canvas.dimensions?.width / 2 ?? 0, y: canvas.dimensions?.height / 2 ?? 0 };
+        let point = { x: center.x, y: center.y };
+        if (canvas.grid?.getSnappedPoint) {
+            point = canvas.grid.getSnappedPoint(center, { mode: CONST.GRID_SNAPPING_MODES?.CENTER });
+        } else if (canvas.grid?.getSnappedPosition) {
+            point = canvas.grid.getSnappedPosition(center.x, center.y);
+        }
         
-        const tokenData = (await actor.getTokenDocument({
+        const tokenDocument = await actor.getTokenDocument({
             x: point.x,
             y: point.y,
             flags: {
@@ -68,9 +112,11 @@ export class PartyCruncher {
                     [this.FLAG_KEY]: []
                 }
             }
-        })).toObject();
+        });
         
+        const tokenData = tokenDocument.toObject();
         await canvas.scene.createEmbeddedDocuments("Token", [tokenData]);
+        ui.notifications.info(`Created Party Token for "${actor.name}".`);
     }
 
     static async uncrunchParty(partyTokenId) {
@@ -79,10 +125,11 @@ export class PartyCruncher {
         
         const members = partyToken.getFlag(this.FLAG_SCOPE, this.FLAG_KEY) || [];
         const toCreate = members.map(m => {
-            m.x = partyToken.x;
-            m.y = partyToken.y;
-            delete m._id; 
-            return m;
+            const clone = foundry.utils.deepClone(m);
+            clone.x = partyToken.x;
+            clone.y = partyToken.y;
+            delete clone._id; 
+            return clone;
         });
 
         if (toCreate.length > 0) {
@@ -122,10 +169,11 @@ export class PartyCruncher {
         const toCreate = [];
         members = members.filter(m => {
             if (storedMemberIds.includes(m._id)) {
-                m.x = partyToken.x;
-                m.y = partyToken.y;
-                delete m._id;
-                toCreate.push(m);
+                const clone = foundry.utils.deepClone(m);
+                clone.x = partyToken.x;
+                clone.y = partyToken.y;
+                delete clone._id;
+                toCreate.push(clone);
                 return false;
             }
             return true;
@@ -183,6 +231,10 @@ Hooks.on('getSceneControlButtons', (controls) => {
         title: "Party Crunch",
         icon: "fa-solid fa-users-viewfinder",
         button: true,
+        onClick: () => {
+            if (!hudInstance) hudInstance = new PartyCrunchHUD();
+            hudInstance.render(true);
+        },
         onChange: () => {
             if (!hudInstance) hudInstance = new PartyCrunchHUD();
             hudInstance.render(true);

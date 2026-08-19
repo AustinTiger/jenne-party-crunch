@@ -7,7 +7,7 @@ export class Config {
     static data = {
         modID: MOD_ID,
         modTitle: MOD_TITLE,
-        modlink: ""
+        modlink: "https://github.com/AustinTiger/jenne-party-crunch"
     };
 
     /**
@@ -18,25 +18,7 @@ export class Config {
     }
 
     /**
-     * Dynamically registers settings passed in a dictionary config.
-     * @param {Object} settingsData - The setting configuration structures
-     */
-    static registerSettings(settingsData) {
-        for (const [key, data] of Object.entries(settingsData)) {
-            game.settings.register(MOD_ID, key, {
-                name: data.name || `JENNEPARTYCRUNCH.settings.${key}.name`,
-                hint: data.hint || `JENNEPARTYCRUNCH.settings.${key}.hint`,
-                scope: data.scope || "world",
-                config: data.config ?? true,
-                type: data.type,
-                default: data.default,
-                onChange: data.onChange
-            });
-        }
-    }
-
-    /**
-     * Returns a registered setting's value. Handles special virtual keys.
+     * Returns a registered setting's value.
      * @param {string} key - The setting key
      */
     static setting(key) {
@@ -65,8 +47,8 @@ export class Config {
 
     static init() {
         game.settings.register(MOD_ID, "partyActorId", {
-            name: "Default Party Actor ID",
-            hint: "The ID of the Actor that represents the Party Token. When you 'Create New Party', a token of this Actor will be spawned.",
+            name: "Default Party Actor ID or UUID",
+            hint: "The ID, UUID (e.g. Actor.lldsj1JYvkOs7rgo), or Name of the Actor that represents the Party Token. When you 'Create New Party', a token of this Actor will be spawned.",
             scope: "world",
             config: true,
             type: String,
