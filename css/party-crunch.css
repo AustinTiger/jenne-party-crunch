@@ -1,77 +1,271 @@
 .jenne-party-crunch-hud {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     height: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-primary);
 }
+
 .jenne-party-crunch-hud .panel {
     flex: 1;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--color-border-dark);
-    border-radius: 5px;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 5px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 8px;
+    overflow: hidden;
 }
+
 .jenne-party-crunch-hud .panel h3 {
     text-align: center;
     border-bottom: 1px solid var(--color-border-light);
-    margin: 0 0 5px 0;
+    margin: 0 0 8px 0;
+    padding-bottom: 4px;
+    font-size: 1.1em;
+    color: var(--color-text-light-highlight);
 }
+
 .jenne-party-crunch-hud ul {
     list-style: none;
     margin: 0;
     padding: 0;
     flex: 1;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
+
 .jenne-party-crunch-hud li {
     display: flex;
     align-items: center;
-    padding: 5px;
-    margin-bottom: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid transparent;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 4px;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
+
 .jenne-party-crunch-hud li:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
 }
+
 .jenne-party-crunch-hud li.selected {
-    border-color: var(--color-shadow-primary);
-    background: rgba(0, 100, 200, 0.4);
+    border-color: #ff6400;
+    background: rgba(255, 100, 0, 0.25);
+    box-shadow: 0 0 6px rgba(255, 100, 0, 0.4);
 }
+
 .jenne-party-crunch-hud li.highlighted {
-    box-shadow: inset 0 0 5px var(--color-shadow-primary);
-    border-color: var(--color-text-light-highlight);
+    box-shadow: inset 0 0 8px #ff6400;
+    border-color: #ffaa00;
+    background: rgba(255, 170, 0, 0.15);
 }
+
 .jenne-party-crunch-hud li img {
-    margin-right: 10px;
+    margin-right: 8px;
+    border-radius: 4px;
     border: 1px solid var(--color-border-dark);
+    object-fit: cover;
+    background: #111;
 }
-.jenne-party-crunch-hud li .name {
+
+.jenne-party-crunch-hud li .party-info,
+.jenne-party-crunch-hud li .token-info {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.jenne-party-crunch-hud li .name {
+    font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.jenne-party-crunch-hud li .status {
-    font-size: 0.8em;
-    color: var(--color-text-light-highlight);
-    margin-right: 5px;
+
+.jenne-party-crunch-hud li .member-count {
+    font-size: 0.75em;
+    color: var(--color-text-light-dim);
 }
+
+.jenne-party-crunch-hud li .status {
+    font-size: 0.75em;
+    margin-top: 2px;
+}
+
+.jenne-party-crunch-hud li .status.in-party {
+    color: #ffaa00;
+}
+
+.jenne-party-crunch-hud li .status.on-canvas {
+    color: #44bb44;
+}
+
+.jenne-party-crunch-hud .empty-state {
+    justify-content: center;
+    opacity: 0.6;
+    font-style: italic;
+    padding: 16px 8px;
+    text-align: center;
+    background: transparent !important;
+    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    cursor: default !important;
+}
+
+/* Party Creator Box */
+.jenne-party-crunch-hud .party-creator-box {
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.jenne-party-crunch-hud .creator-title {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: var(--color-text-light-highlight);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 3px;
+}
+
+.jenne-party-crunch-hud .creator-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.jenne-party-crunch-hud .filter-row,
+.jenne-party-crunch-hud .actor-select-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.jenne-party-crunch-hud .filter-row label,
+.jenne-party-crunch-hud .actor-select-row label {
+    font-size: 0.8em;
+    width: 55px;
+    flex-shrink: 0;
+    color: var(--color-text-light-dim);
+}
+
+.jenne-party-crunch-hud select {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--color-text-light-heading);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 3px;
+    padding: 3px 6px;
+    font-size: 0.85em;
+}
+
+.jenne-party-crunch-hud select:focus {
+    border-color: #ff6400;
+}
+
+.jenne-party-crunch-hud .create-party-btn {
+    width: 100%;
+    margin-top: 2px;
+    padding: 4px 8px;
+    background: rgba(40, 120, 60, 0.6);
+    border: 1px solid #44aa55;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.jenne-party-crunch-hud .create-party-btn:hover:not(:disabled) {
+    background: rgba(50, 150, 75, 0.8);
+    box-shadow: 0 0 6px rgba(70, 200, 100, 0.4);
+}
+
+.jenne-party-crunch-hud .create-party-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .jenne-party-crunch-hud .actions {
     display: flex;
-    gap: 5px;
-    margin-top: 5px;
+    gap: 6px;
+    margin-top: 8px;
 }
-.jenne-party-crunch-hud button {
+
+.jenne-party-crunch-hud button.add-btn {
     flex: 1;
+    background: rgba(30, 90, 160, 0.6);
+    border: 1px solid #3388dd;
+    color: #fff;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
+
+.jenne-party-crunch-hud button.add-btn:hover:not(:disabled) {
+    background: rgba(40, 110, 200, 0.8);
+    box-shadow: 0 0 6px rgba(50, 150, 255, 0.4);
+}
+
+.jenne-party-crunch-hud button.remove-btn {
+    flex: 1;
+    background: rgba(160, 60, 30, 0.6);
+    border: 1px solid #dd5533;
+    color: #fff;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.jenne-party-crunch-hud button.remove-btn:hover:not(:disabled) {
+    background: rgba(200, 75, 40, 0.8);
+    box-shadow: 0 0 6px rgba(255, 90, 50, 0.4);
+}
+
+.jenne-party-crunch-hud button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .jenne-party-crunch-hud .uncrunch-btn {
     flex: 0 0 auto;
     width: auto;
-    padding: 2px 5px;
+    padding: 4px 8px;
     font-size: 0.8em;
-    background: rgba(200, 50, 50, 0.6);
+    background: rgba(180, 40, 40, 0.7);
+    border: 1px solid #ff5555;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.jenne-party-crunch-hud .uncrunch-btn:hover {
+    background: rgba(220, 50, 50, 0.9);
+    box-shadow: 0 0 6px rgba(255, 70, 70, 0.5);
 }

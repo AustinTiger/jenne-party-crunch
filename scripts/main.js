@@ -46,16 +46,17 @@ export class PartyCruncher {
     }
 
     /**
-     * Resolves the configured Party Actor from a UUID, ID, or Name.
+     * Resolves an Actor from a UUID, ID, or Name.
+     * @param {string} [actorIdentifier] - Specific actor UUID/ID to resolve. If omitted, uses setting.
      * @returns {Promise<Actor|null>}
      */
-    static async getPartyActor() {
-        let actorSetting = (game.settings.get(Config.data.modID, "partyActorId") || "").trim();
-        if (!actorSetting) return null;
+    static async resolveActor(actorIdentifier) {
+        let identifier = (actorIdentifier || game.settings.get(Config.data.modID, "partyActorId") || "").trim();
+        if (!identifier) return null;
 
         // 1. Try fromUuidSync / fromUuid (supports "Actor.id" and compendium UUIDs)
         try {
-            let actor = fromUuidSync(actorSetting) || (await fromUuid(actorSetting));
+            let actor = fromUuidSync(identifier) || (await fromUuid(identifier));
             if (actor?.documentName === "Actor") return actor;
             if (actor instanceof Actor) return actor;
         } catch (err) {
@@ -63,35 +64,30 @@ export class PartyCruncher {
         }
 
         // 2. Try stripping "Actor." prefix for local actors collection
-        const cleanId = actorSetting.replace(/^Actor\./, "");
+        const cleanId = identifier.replace(/^Actor\./, "");
         let localActor = game.actors.get(cleanId);
         if (localActor) return localActor;
 
         // 3. Try lookup by raw ID
-        localActor = game.actors.get(actorSetting);
+        localActor = game.actors.get(identifier);
         if (localActor) return localActor;
 
         // 4. Try lookup by Actor Name
-        localActor = game.actors.getName(actorSetting);
+        localActor = game.actors.getName(identifier);
         if (localActor) return localActor;
 
         return null;
     }
 
-    static async createPartyToken() {
+    static async createPartyToken(actorIdentifier = null) {
         if (!canvas.ready || !canvas.scene) {
             ui.notifications.warn("Please open a Scene before creating a Party Token.");
             return;
         }
 
-        const actor = await this.getPartyActor();
+        const actor = await this.resolveActor(actorIdentifier);
         if (!actor) {
-            const currentSetting = game.settings.get(Config.data.modID, "partyActorId");
-            if (!currentSetting) {
-                ui.notifications.warn("Please configure a Party Actor in Game Settings -> Module Settings -> Jenne Party Crunch.");
-            } else {
-                ui.notifications.error(`Party Actor "${currentSetting}" not found. Check your module settings.`);
-            }
+            ui.notifications.warn("Please select an Actor to create the party token.");
             return;
         }
         
@@ -115,8 +111,9 @@ export class PartyCruncher {
         });
         
         const tokenData = tokenDocument.toObject();
-        await canvas.scene.createEmbeddedDocuments("Token", [tokenData]);
+        const created = await canvas.scene.createEmbeddedDocuments("Token", [tokenData]);
         ui.notifications.info(`Created Party Token for "${actor.name}".`);
+        return created;
     }
 
     static async uncrunchParty(partyTokenId) {

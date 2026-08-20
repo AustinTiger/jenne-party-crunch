@@ -7,14 +7,18 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         super(options);
         this.selectedPartyId = null;
         this.selectedIndividualIds = new Set();
+        this.actorTypeFilter = "all";
+        this.selectedActorUuid = null;
         
-        // Listen to canvas updates to re-render when tokens change
-        Hooks.on('createToken', this._onTokenChange.bind(this));
-        Hooks.on('updateToken', this._onTokenChange.bind(this));
-        Hooks.on('deleteToken', this._onTokenChange.bind(this));
+        // Listen to canvas and actor updates to re-render when tokens or actors change
+        this._tokenCreateHook = Hooks.on('createToken', this._onCanvasChange.bind(this));
+        this._tokenUpdateHook = Hooks.on('updateToken', this._onCanvasChange.bind(this));
+        this._tokenDeleteHook = Hooks.on('deleteToken', this._onCanvasChange.bind(this));
+        this._actorCreateHook = Hooks.on('createActor', this._onCanvasChange.bind(this));
+        this._actorDeleteHook = Hooks.on('deleteActor', this._onCanvasChange.bind(this));
     }
 
-    _onTokenChange() {
+    _onCanvasChange() {
         if (this.rendered) {
             this.render();
         }
@@ -28,8 +32,8 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             resizable: true,
         },
         position: {
-            width: 600,
-            height: 400
+            width: 720,
+            height: 480
         },
         actions: {
             createParty: PartyCrunchHUD.createParty,
@@ -37,7 +41,9 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             addTokens: PartyCrunchHUD.addTokens,
             removeTokens: PartyCrunchHUD.removeTokens,
             selectParty: PartyCrunchHUD.selectParty,
-            selectIndividual: PartyCrunchHUD.selectIndividual
+            selectIndividual: PartyCrunchHUD.selectIndividual,
+            changeTypeFilter: PartyCrunchHUD.changeTypeFilter,
+            changeSelectedActor: PartyCrunchHUD.changeSelectedActor
         }
     };
 
@@ -48,13 +54,20 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
     };
 
     async _prepareContext(options) {
-        const parties = PartyCruncher.getCrunchedTokens().map(t => ({
-            id: t.id,
-            name: t.name,
-            img: t.texture?.src || t.document?.texture?.src,
-            selected: this.selectedPartyId === t.id
-        }));
+        // 1. Crunched Parties
+        const parties = PartyCruncher.getCrunchedTokens().map(t => {
+            const members = t.getFlag(PartyCruncher.FLAG_SCOPE, PartyCruncher.FLAG_KEY) || [];
+            return {
+                id: t.id,
+                name: t.name,
+                img: t.texture?.src || t.document?.texture?.src || "icons/svg/mystery-man.svg",
+                selected: this.selectedPartyId === t.id,
+                memberCount: members.length,
+                isSingle: members.length === 1
+            };
+        });
 
+        // 2. Individual Tokens & Members
         const individualsData = PartyCruncher.getIndividuals();
         const individuals = individualsData.map(i => ({
             ...i,
@@ -72,24 +85,89 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             return ind && ind.inParty === this.selectedPartyId;
         });
 
+        // 3. Actor Types List
+        const allActors = game.actors ? game.actors.contents : [];
+        const presentTypes = new Set(allActors.map(a => a.type));
+        
+        // Also include system declared actor types if available
+        const systemTypes = game.system?.documentTypes?.Actor || [];
+        systemTypes.forEach(t => presentTypes.add(t));
+
+        const actorTypes = Array.from(presentTypes).map(typeKey => {
+            let label = typeKey.capitalize();
+            if (CONFIG.Actor?.typeLabels?.[typeKey]) {
+                label = game.i18n.localize(CONFIG.Actor.typeLabels[typeKey]);
+            }
+            return {
+                type: typeKey,
+                label: label,
+                selected: this.actorTypeFilter === typeKey
+            };
+        });
+        actorTypes.sort((a, b) => a.label.localeCompare(b.label));
+
+        // 4. Filter Available Actors
+        let filteredActors = allActors;
+        if (this.actorTypeFilter && this.actorTypeFilter !== "all") {
+            filteredActors = filteredActors.filter(a => a.type === this.actorTypeFilter);
+        }
+        filteredActors.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+        // Validate or set default selectedActorUuid
+        if (!filteredActors.some(a => a.uuid === this.selectedActorUuid) && filteredActors.length > 0) {
+            this.selectedActorUuid = filteredActors[0].uuid;
+        } else if (filteredActors.length === 0) {
+            this.selectedActorUuid = null;
+        }
+
+        const availableActors = filteredActors.map(a => {
+            const typeLabel = CONFIG.Actor?.typeLabels?.[a.type] 
+                ? game.i18n.localize(CONFIG.Actor.typeLabels[a.type]) 
+                : a.type.capitalize();
+            return {
+                id: a.id,
+                uuid: a.uuid,
+                name: a.name,
+                img: a.img,
+                type: a.type,
+                typeLabel: typeLabel,
+                selected: this.selectedActorUuid === a.uuid
+            };
+        });
+
         return {
             parties,
             individuals,
             canAdd,
-            canRemove
+            canRemove,
+            actorTypes,
+            isAllSelected: this.actorTypeFilter === "all",
+            availableActors,
+            selectedActorUuid: this.selectedActorUuid
         };
     }
 
-    // actions
+    // Actions
+    static changeTypeFilter(event, target) {
+        this.actorTypeFilter = target.value;
+        this.render();
+    }
+
+    static changeSelectedActor(event, target) {
+        this.selectedActorUuid = target.value;
+        this.render();
+    }
+
     static async createParty() {
-        await PartyCruncher.createPartyToken();
-        // The hook will auto-render us when the token is created.
+        if (!this.selectedActorUuid) {
+            ui.notifications.warn("Please select an Actor from the dropdown to create a party.");
+            return;
+        }
+        await PartyCruncher.createPartyToken(this.selectedActorUuid);
     }
 
     static async uncrunch(event, target) {
-        // Prevent click from propagating to selectParty
         event.stopPropagation();
-        
         const id = target.closest('[data-id]')?.dataset.id;
         if (id) {
             await PartyCruncher.uncrunchParty(id);

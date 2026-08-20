@@ -1,37 +1,91 @@
 <div class="jenne-party-crunch-hud">
+    <!-- Left Panel: Crunched Parties & Party Creator -->
     <div class="panel parties">
-        <h3>Crunched Parties</h3>
+        <h3><i class="fa-solid fa-users"></i> Crunched Parties</h3>
+        
         <ul class="party-list">
             {{#each parties}}
             <li class="party-item {{#if this.selected}}selected{{/if}}" data-action="selectParty" data-id="{{this.id}}">
                 <img src="{{this.img}}" width="32" height="32" />
-                <span class="name">{{this.name}}</span>
+                <div class="party-info">
+                    <span class="name">{{this.name}}</span>
+                    <span class="member-count">{{this.memberCount}} member{{#unless this.isSingle}}s{{/unless}}</span>
+                </div>
                 {{#if this.selected}}
-                <button class="action-btn uncrunch-btn" data-action="uncrunch" data-id="{{this.id}}" title="Uncrunch Party"><i class="fa-solid fa-box-open"></i></button>
+                <button class="action-btn uncrunch-btn" data-action="uncrunch" data-id="{{this.id}}" title="Uncrunch Party (Spawn all members)">
+                    <i class="fa-solid fa-box-open"></i> Uncrunch
+                </button>
                 {{/if}}
             </li>
             {{else}}
-            <li style="justify-content: center; opacity: 0.5;">No Crunched Parties</li>
+            <li class="empty-state"><i class="fa-solid fa-circle-info"></i> No crunched parties in this scene</li>
             {{/each}}
         </ul>
-        <button class="create-party-btn" data-action="createParty"><i class="fa-solid fa-plus"></i> Create New Party</button>
+
+        <!-- Actor Template Selection & Creation Box -->
+        <div class="party-creator-box">
+            <div class="creator-title">
+                <i class="fa-solid fa-layer-group"></i> Create Party From Actor:
+            </div>
+            
+            <div class="creator-controls">
+                <div class="filter-row">
+                    <label title="Filter actors by type"><i class="fa-solid fa-filter"></i> Type:</label>
+                    <select class="type-filter" data-action="changeTypeFilter">
+                        <option value="all" {{#if isAllSelected}}selected{{/if}}>All Types</option>
+                        {{#each actorTypes}}
+                        <option value="{{this.type}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="actor-select-row">
+                    <label title="Choose the Actor to represent this party"><i class="fa-solid fa-user-shield"></i> Actor:</label>
+                    <select class="actor-select" data-action="changeSelectedActor">
+                        {{#each availableActors}}
+                        <option value="{{this.uuid}}" {{#if this.selected}}selected{{/if}}>{{this.name}} [{{this.typeLabel}}]</option>
+                        {{else}}
+                        <option value="" disabled selected>No actors found for this filter</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+
+            <button class="create-party-btn" data-action="createParty" {{#unless selectedActorUuid}}disabled{{/unless}}>
+                <i class="fa-solid fa-plus-circle"></i> Create Party Token
+            </button>
+        </div>
     </div>
+
+    <!-- Right Panel: Individual Tokens on Canvas & Members -->
     <div class="panel individuals">
-        <h3>Individual Tokens</h3>
+        <h3><i class="fa-solid fa-user-group"></i> Individual Tokens</h3>
+        
         <ul class="individual-list">
             {{#each individuals}}
             <li class="individual-item {{#if this.selected}}selected{{/if}} {{#if this.inSelectedParty}}highlighted{{/if}}" data-action="selectIndividual" data-id="{{this.id}}" data-in-party="{{this.inParty}}">
                 <img src="{{this.img}}" width="32" height="32" />
-                <span class="name">{{this.name}}</span>
-                <span class="status">{{#if this.partyName}} (in {{this.partyName}}){{/if}}</span>
+                <div class="token-info">
+                    <span class="name">{{this.name}}</span>
+                    {{#if this.partyName}}
+                    <span class="status in-party"><i class="fa-solid fa-link"></i> In: {{this.partyName}}</span>
+                    {{else}}
+                    <span class="status on-canvas"><i class="fa-solid fa-map-pin"></i> On Canvas</span>
+                    {{/if}}
+                </div>
             </li>
             {{else}}
-            <li style="justify-content: center; opacity: 0.5;">No Individual Tokens</li>
+            <li class="empty-state"><i class="fa-solid fa-circle-info"></i> No individual tokens found</li>
             {{/each}}
         </ul>
+
         <div class="actions">
-            <button class="add-btn" data-action="addTokens" {{#unless canAdd}}disabled{{/unless}}><i class="fa-solid fa-arrow-left"></i> Add to Party</button>
-            <button class="remove-btn" data-action="removeTokens" {{#unless canRemove}}disabled{{/unless}}>Remove <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="add-btn" data-action="addTokens" {{#unless canAdd}}disabled{{/unless}} title="Add selected canvas tokens into the chosen party">
+                <i class="fa-solid fa-arrow-left"></i> Add to Party
+            </button>
+            <button class="remove-btn" data-action="removeTokens" {{#unless canRemove}}disabled{{/unless}} title="Remove selected members from party and place them on the scene">
+                <i class="fa-solid fa-arrow-right"></i> Remove
+            </button>
         </div>
     </div>
 </div>
