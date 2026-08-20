@@ -26,14 +26,15 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
 
     static DEFAULT_OPTIONS = {
         id: "jenne-party-crunch-hud",
+        classes: ["jenne-party-crunch-window"],
         title: "Party Crunch Manager",
         window: {
             icon: "fa-solid fa-users-viewfinder",
             resizable: true,
         },
         position: {
-            width: 720,
-            height: 480
+            width: 780,
+            height: 520
         },
         actions: {
             createParty: PartyCrunchHUD.createParty,
@@ -85,13 +86,21 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             return ind && ind.inParty === this.selectedPartyId;
         });
 
-        // 3. Actor Types List
+        // 3. Actor Types List (robust check supporting arrays and objects)
         const allActors = game.actors ? game.actors.contents : [];
         const presentTypes = new Set(allActors.map(a => a.type));
         
-        // Also include system declared actor types if available
-        const systemTypes = game.system?.documentTypes?.Actor || [];
-        systemTypes.forEach(t => presentTypes.add(t));
+        if (CONFIG.Actor?.typeLabels) {
+            Object.keys(CONFIG.Actor.typeLabels).forEach(t => presentTypes.add(t));
+        }
+        if (Array.isArray(game.documentTypes?.Actor)) {
+            game.documentTypes.Actor.forEach(t => presentTypes.add(t));
+        } else if (game.system?.documentTypes?.Actor) {
+            const sysTypes = Array.isArray(game.system.documentTypes.Actor) 
+                ? game.system.documentTypes.Actor 
+                : Object.keys(game.system.documentTypes.Actor);
+            sysTypes.forEach(t => presentTypes.add(t));
+        }
 
         const actorTypes = Array.from(presentTypes).map(typeKey => {
             let label = typeKey.capitalize();
@@ -128,7 +137,7 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
                 id: a.id,
                 uuid: a.uuid,
                 name: a.name,
-                img: a.img,
+                img: a.img || "icons/svg/mystery-man.svg",
                 type: a.type,
                 typeLabel: typeLabel,
                 selected: this.selectedActorUuid === a.uuid

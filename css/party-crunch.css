@@ -1,271 +1,386 @@
-.jenne-party-crunch-hud {
-    display: flex;
-    gap: 12px;
-    height: 100%;
-    box-sizing: border-box;
-    font-family: var(--font-primary);
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap');
+
+/* ==========================================================================
+   Jenne Party Crunch - Unified Jenne Design System Theme
+   ========================================================================== */
+
+.jenne-party-crunch-window {
+  --jenne-bg-primary: #0d0a08;
+  --jenne-bg-secondary: #130f0c;
+  --jenne-bg-tertiary: #1b1612;
+  --jenne-bg-elevated: #241d18;
+
+  --jenne-border-subtle: rgba(212, 168, 87, 0.12);
+  --jenne-border-color: rgba(212, 168, 87, 0.18);
+  --jenne-border-glow: rgba(212, 168, 87, 0.45);
+  --jenne-border-focus: rgba(240, 212, 134, 0.7);
+
+  --jenne-text-main: #f0ebd8;
+  --jenne-text-muted: #999480;
+  --jenne-text-active: #f0d486;
+  --jenne-text-gold: #d4a857;
+
+  --jenne-primary-accent: linear-gradient(180deg, #d4a857 0%, #bda26f 100%);
+  --jenne-primary-accent-hover: linear-gradient(180deg, #f0d486 0%, #d4a857 100%);
+  --jenne-secondary-accent: rgba(212, 168, 87, 0.08);
+
+  --jenne-danger-color: #782e22;
+  --jenne-danger-hover: #9c3c2d;
+  --jenne-danger-glow: #e53935;
+  --jenne-success-color: #3b7e20;
+  --jenne-success-hover: #4e9e2b;
+
+  --jenne-font-fantasy: 'Cinzel', Georgia, serif;
+  --jenne-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  font-family: var(--jenne-font-sans);
+  color: var(--jenne-text-main);
 }
 
+.jenne-party-crunch-window .window-content {
+  background: var(--jenne-bg-primary) !important;
+  padding: 8px !important;
+  overflow: hidden;
+}
+
+.jenne-party-crunch-hud {
+  display: flex;
+  gap: 12px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Panels */
 .jenne-party-crunch-hud .panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--color-border-dark);
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.45);
-    padding: 8px;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--jenne-bg-secondary);
+  border: 1px solid var(--jenne-border-color);
+  border-radius: 6px;
+  padding: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .jenne-party-crunch-hud .panel h3 {
-    text-align: center;
-    border-bottom: 1px solid var(--color-border-light);
-    margin: 0 0 8px 0;
-    padding-bottom: 4px;
-    font-size: 1.1em;
-    color: var(--color-text-light-highlight);
+  font-family: var(--jenne-font-fantasy);
+  color: var(--jenne-text-gold);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin: 0 0 8px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--jenne-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
+/* Lists */
 .jenne-party-crunch-hud ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0 2px 0 0;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
+/* Custom Scrollbars */
+.jenne-party-crunch-hud ul::-webkit-scrollbar {
+  width: 6px;
+}
+.jenne-party-crunch-hud ul::-webkit-scrollbar-track {
+  background: var(--jenne-bg-primary);
+  border-radius: 3px;
+}
+.jenne-party-crunch-hud ul::-webkit-scrollbar-thumb {
+  background: rgba(212, 168, 87, 0.25);
+  border-radius: 3px;
+}
+.jenne-party-crunch-hud ul::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 168, 87, 0.5);
+}
+
+/* Cards */
 .jenne-party-crunch-hud li {
-    display: flex;
-    align-items: center;
-    padding: 6px 8px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.15s ease, border-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--jenne-bg-tertiary);
+  border: 1px solid var(--jenne-border-subtle);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .jenne-party-crunch-hud li:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+  background: var(--jenne-bg-elevated);
+  border-color: var(--jenne-border-glow);
+  transform: translateX(1px);
 }
 
 .jenne-party-crunch-hud li.selected {
-    border-color: #ff6400;
-    background: rgba(255, 100, 0, 0.25);
-    box-shadow: 0 0 6px rgba(255, 100, 0, 0.4);
+  background: rgba(212, 168, 87, 0.14);
+  border-color: #d4a857;
+  box-shadow: 0 0 8px rgba(212, 168, 87, 0.3);
 }
 
 .jenne-party-crunch-hud li.highlighted {
-    box-shadow: inset 0 0 8px #ff6400;
-    border-color: #ffaa00;
-    background: rgba(255, 170, 0, 0.15);
+  background: rgba(212, 168, 87, 0.08);
+  border-color: var(--jenne-border-focus);
+  box-shadow: inset 0 0 6px rgba(212, 168, 87, 0.25);
 }
 
 .jenne-party-crunch-hud li img {
-    margin-right: 8px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-dark);
-    object-fit: cover;
-    background: #111;
+  border-radius: 4px;
+  border: 1px solid var(--jenne-border-color);
+  margin-right: 10px;
+  background: var(--jenne-bg-primary);
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .jenne-party-crunch-hud li .party-info,
 .jenne-party-crunch-hud li .token-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .jenne-party-crunch-hud li .name {
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--jenne-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .jenne-party-crunch-hud li .member-count {
-    font-size: 0.75em;
-    color: var(--color-text-light-dim);
+  font-size: 11px;
+  color: var(--jenne-text-muted);
 }
 
 .jenne-party-crunch-hud li .status {
-    font-size: 0.75em;
-    margin-top: 2px;
+  font-size: 11px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .jenne-party-crunch-hud li .status.in-party {
-    color: #ffaa00;
+  color: #e8b556;
 }
 
 .jenne-party-crunch-hud li .status.on-canvas {
-    color: #44bb44;
+  color: #8bc34a;
 }
 
 .jenne-party-crunch-hud .empty-state {
-    justify-content: center;
-    opacity: 0.6;
-    font-style: italic;
-    padding: 16px 8px;
-    text-align: center;
-    background: transparent !important;
-    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
-    cursor: default !important;
+  justify-content: center;
+  color: var(--jenne-text-muted);
+  font-style: italic;
+  font-size: 12px;
+  padding: 24px 10px;
+  background: transparent !important;
+  border: 1px dashed var(--jenne-border-subtle) !important;
+  cursor: default !important;
+  gap: 6px;
 }
 
 /* Party Creator Box */
 .jenne-party-crunch-hud .party-creator-box {
-    margin-top: 8px;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--jenne-bg-tertiary);
+  border: 1px solid var(--jenne-border-color);
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .jenne-party-crunch-hud .creator-title {
-    font-size: 0.85em;
-    font-weight: bold;
-    color: var(--color-text-light-highlight);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 3px;
+  font-family: var(--jenne-font-fantasy);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--jenne-text-gold);
+  border-bottom: 1px solid var(--jenne-border-subtle);
+  padding-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .jenne-party-crunch-hud .creator-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .jenne-party-crunch-hud .filter-row,
 .jenne-party-crunch-hud .actor-select-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .jenne-party-crunch-hud .filter-row label,
 .jenne-party-crunch-hud .actor-select-row label {
-    font-size: 0.8em;
-    width: 55px;
-    flex-shrink: 0;
-    color: var(--color-text-light-dim);
+  font-size: 11px;
+  font-weight: 500;
+  width: 58px;
+  flex-shrink: 0;
+  color: var(--jenne-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .jenne-party-crunch-hud select {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.6);
-    color: var(--color-text-light-heading);
-    border: 1px solid var(--color-border-dark);
-    border-radius: 3px;
-    padding: 3px 6px;
-    font-size: 0.85em;
+  flex: 1;
+  background: var(--jenne-bg-primary);
+  color: var(--jenne-text-main);
+  border: 1px solid var(--jenne-border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: var(--jenne-font-sans);
+  outline: none;
 }
 
 .jenne-party-crunch-hud select:focus {
-    border-color: #ff6400;
+  border-color: var(--jenne-border-focus);
+  box-shadow: 0 0 6px rgba(212, 168, 87, 0.3);
 }
 
+/* Jenne Suite Primary Buttons */
 .jenne-party-crunch-hud .create-party-btn {
-    width: 100%;
-    margin-top: 2px;
-    padding: 4px 8px;
-    background: rgba(40, 120, 60, 0.6);
-    border: 1px solid #44aa55;
-    color: #fff;
-    font-weight: bold;
-    font-size: 0.9em;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+  font-family: var(--jenne-font-fantasy) !important;
+  width: 100%;
+  margin-top: 2px;
+  padding: 6px 12px;
+  background: var(--jenne-primary-accent);
+  border: 1px solid #bda26f;
+  color: #110d08 !important;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .jenne-party-crunch-hud .create-party-btn:hover:not(:disabled) {
-    background: rgba(50, 150, 75, 0.8);
-    box-shadow: 0 0 6px rgba(70, 200, 100, 0.4);
+  background: var(--jenne-primary-accent-hover);
+  border-color: #f0d486;
+  box-shadow: 0 0 10px rgba(212, 168, 87, 0.5);
+  transform: translateY(-1px);
 }
 
 .jenne-party-crunch-hud .create-party-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
 }
 
+/* Action Buttons */
 .jenne-party-crunch-hud .actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .jenne-party-crunch-hud button.add-btn {
-    flex: 1;
-    background: rgba(30, 90, 160, 0.6);
-    border: 1px solid #3388dd;
-    color: #fff;
-    padding: 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+  flex: 1;
+  font-family: var(--jenne-font-fantasy) !important;
+  background: var(--jenne-primary-accent);
+  border: 1px solid #bda26f;
+  color: #110d08 !important;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
 }
 
 .jenne-party-crunch-hud button.add-btn:hover:not(:disabled) {
-    background: rgba(40, 110, 200, 0.8);
-    box-shadow: 0 0 6px rgba(50, 150, 255, 0.4);
+  background: var(--jenne-primary-accent-hover);
+  border-color: #f0d486;
+  box-shadow: 0 0 8px rgba(212, 168, 87, 0.4);
 }
 
 .jenne-party-crunch-hud button.remove-btn {
-    flex: 1;
-    background: rgba(160, 60, 30, 0.6);
-    border: 1px solid #dd5533;
-    color: #fff;
-    padding: 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+  flex: 1;
+  font-family: var(--jenne-font-fantasy) !important;
+  background: var(--jenne-bg-tertiary);
+  border: 1px solid var(--jenne-border-color);
+  color: var(--jenne-text-main);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
 }
 
 .jenne-party-crunch-hud button.remove-btn:hover:not(:disabled) {
-    background: rgba(200, 75, 40, 0.8);
-    box-shadow: 0 0 6px rgba(255, 90, 50, 0.4);
+  background: var(--jenne-bg-elevated);
+  border-color: var(--jenne-border-focus);
+  color: var(--jenne-text-active);
 }
 
 .jenne-party-crunch-hud button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
 }
 
+/* Uncrunch Button */
 .jenne-party-crunch-hud .uncrunch-btn {
-    flex: 0 0 auto;
-    width: auto;
-    padding: 4px 8px;
-    font-size: 0.8em;
-    background: rgba(180, 40, 40, 0.7);
-    border: 1px solid #ff5555;
-    color: #fff;
-    border-radius: 3px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  flex: 0 0 auto;
+  font-family: var(--jenne-font-fantasy) !important;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--jenne-danger-color);
+  border: 1px solid var(--jenne-danger-glow);
+  color: #fff !important;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
 }
 
 .jenne-party-crunch-hud .uncrunch-btn:hover {
-    background: rgba(220, 50, 50, 0.9);
-    box-shadow: 0 0 6px rgba(255, 70, 70, 0.5);
+  background: var(--jenne-danger-hover);
+  box-shadow: 0 0 8px rgba(229, 57, 53, 0.5);
 }
