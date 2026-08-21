@@ -33,11 +33,13 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             resizable: true,
         },
         position: {
-            width: 780,
-            height: 520
+            width: 800,
+            height: 560
         },
         actions: {
             createParty: PartyCrunchHUD.createParty,
+            toggleCrunch: PartyCrunchHUD.toggleCrunch,
+            deleteParty: PartyCrunchHUD.deleteParty,
             uncrunch: PartyCrunchHUD.uncrunch,
             addTokens: PartyCrunchHUD.addTokens,
             removeTokens: PartyCrunchHUD.removeTokens,
@@ -55,18 +57,26 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
     };
 
     async _prepareContext(options) {
-        // 1. Crunched Parties
+        // 1. Scene Parties
         const parties = PartyCruncher.getCrunchedTokens().map(t => {
-            const members = t.getFlag(PartyCruncher.FLAG_SCOPE, PartyCruncher.FLAG_KEY) || [];
+            const members = t.getFlag(PartyCruncher.FLAG_SCOPE, PartyCruncher.FLAG_KEY_MEMBERS) || [];
+            const isCrunched = t.getFlag(PartyCruncher.FLAG_SCOPE, PartyCruncher.FLAG_KEY_CRUNCHED) ?? false;
             return {
                 id: t.id,
                 name: t.name,
                 img: t.texture?.src || t.document?.texture?.src || "icons/svg/mystery-man.svg",
                 selected: this.selectedPartyId === t.id,
+                isCrunched: isCrunched,
                 memberCount: members.length,
                 isSingle: members.length === 1
             };
         });
+
+        // Selected Party object if valid
+        let selectedParty = parties.find(p => p.id === this.selectedPartyId) || null;
+        if (!selectedParty && parties.length > 0 && this.selectedPartyId) {
+            this.selectedPartyId = null;
+        }
 
         // 2. Individual Tokens & Members
         const individualsData = PartyCruncher.getIndividuals();
@@ -78,7 +88,7 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
 
         const canAdd = this.selectedPartyId && this.selectedIndividualIds.size > 0 && Array.from(this.selectedIndividualIds).some(id => {
             const ind = individuals.find(i => i.id === id);
-            return ind && !ind.inParty;
+            return ind && (!ind.inParty || ind.inParty !== this.selectedPartyId);
         });
         
         const canRemove = this.selectedPartyId && this.selectedIndividualIds.size > 0 && Array.from(this.selectedIndividualIds).some(id => {
@@ -86,7 +96,7 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             return ind && ind.inParty === this.selectedPartyId;
         });
 
-        // 3. Actor Types List (robust check supporting arrays and objects)
+        // 3. Actor Types List
         const allActors = game.actors ? game.actors.contents : [];
         const presentTypes = new Set(allActors.map(a => a.type));
         
@@ -146,6 +156,7 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
 
         return {
             parties,
+            selectedParty,
             individuals,
             canAdd,
             canRemove,
@@ -172,15 +183,37 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
             ui.notifications.warn("Please select an Actor from the dropdown to create a party.");
             return;
         }
-        await PartyCruncher.createPartyToken(this.selectedActorUuid);
+        const created = await PartyCruncher.createPartyToken(this.selectedActorUuid);
+        if (created && created[0]) {
+            this.selectedPartyId = created[0].id;
+        }
+    }
+
+    static async toggleCrunch(event, target) {
+        event.stopPropagation();
+        const id = target.closest('[data-id]')?.dataset.id || this.selectedPartyId;
+        if (id) {
+            await PartyCruncher.toggleCrunch(id);
+            this.render();
+        }
     }
 
     static async uncrunch(event, target) {
         event.stopPropagation();
-        const id = target.closest('[data-id]')?.dataset.id;
+        const id = target.closest('[data-id]')?.dataset.id || this.selectedPartyId;
         if (id) {
             await PartyCruncher.uncrunchParty(id);
+            this.render();
+        }
+    }
+
+    static async deleteParty(event, target) {
+        event.stopPropagation();
+        const id = target.closest('[data-id]')?.dataset.id || this.selectedPartyId;
+        if (id) {
+            await PartyCruncher.deleteParty(id);
             if (this.selectedPartyId === id) this.selectedPartyId = null;
+            this.render();
         }
     }
 
@@ -188,11 +221,12 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!this.selectedPartyId || this.selectedIndividualIds.size === 0) return;
         const idsToAdd = Array.from(this.selectedIndividualIds).filter(id => {
             const ind = PartyCruncher.getIndividuals().find(i => i.id === id);
-            return ind && !ind.inParty;
+            return ind && (!ind.inParty || ind.inParty !== this.selectedPartyId);
         });
         if (idsToAdd.length > 0) {
             await PartyCruncher.addTokensToParty(this.selectedPartyId, idsToAdd);
             this.selectedIndividualIds.clear();
+            this.render();
         }
     }
 
@@ -205,6 +239,7 @@ export class PartyCrunchHUD extends HandlebarsApplicationMixin(ApplicationV2) {
         if (idsToRemove.length > 0) {
             await PartyCruncher.removeTokensFromParty(this.selectedPartyId, idsToRemove);
             this.selectedIndividualIds.clear();
+            this.render();
         }
     }
 

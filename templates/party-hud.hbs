@@ -1,26 +1,54 @@
 <div class="jenne-party-crunch-hud">
     <!-- Left Panel: Crunched Parties & Party Creator -->
     <div class="panel parties">
-        <h3><i class="fa-solid fa-users"></i> Crunched Parties</h3>
+        <h3><i class="fa-solid fa-users"></i> Parties in Scene</h3>
         
         <ul class="party-list">
             {{#each parties}}
             <li class="party-item {{#if this.selected}}selected{{/if}}" data-action="selectParty" data-id="{{this.id}}">
-                <img src="{{this.img}}" width="32" height="32" />
+                <img src="{{this.img}}" width="34" height="34" />
                 <div class="party-info">
                     <span class="name">{{this.name}}</span>
-                    <span class="member-count">{{this.memberCount}} member{{#unless this.isSingle}}s{{/unless}}</span>
+                    <div class="party-badges">
+                        <span class="member-count"><i class="fa-solid fa-user-group"></i> {{this.memberCount}} member{{#unless this.isSingle}}s{{/unless}}</span>
+                        {{#if this.isCrunched}}
+                        <span class="status-badge crunched"><i class="fa-solid fa-compress"></i> Crunched</span>
+                        {{else}}
+                        <span class="status-badge uncrunched"><i class="fa-solid fa-expand"></i> Uncrunched</span>
+                        {{/if}}
+                    </div>
                 </div>
-                {{#if this.selected}}
-                <button class="action-btn uncrunch-btn" data-action="uncrunch" data-id="{{this.id}}" title="Uncrunch Party (Spawn all members)">
-                    <i class="fa-solid fa-box-open"></i> Uncrunch
+                <button class="icon-btn delete-party-btn" data-action="deleteParty" data-id="{{this.id}}" title="Delete Party">
+                    <i class="fa-solid fa-trash-can"></i>
                 </button>
-                {{/if}}
             </li>
             {{else}}
-            <li class="empty-state"><i class="fa-solid fa-circle-info"></i> No crunched parties in this scene</li>
+            <li class="empty-state"><i class="fa-solid fa-circle-info"></i> No parties in this scene</li>
             {{/each}}
         </ul>
+
+        {{#if selectedParty}}
+        <!-- Selected Party Actions -->
+        <div class="selected-party-actions">
+            <div class="selected-party-header">
+                <span><i class="fa-solid fa-sliders"></i> Party Actions: <strong>{{selectedParty.name}}</strong></span>
+            </div>
+            <div class="party-toggle-controls">
+                {{#if selectedParty.isCrunched}}
+                <button class="action-btn uncrunch-btn" data-action="toggleCrunch" data-id="{{selectedParty.id}}" title="Deploy/Spawn party members around the party token">
+                    <i class="fa-solid fa-box-open"></i> Uncrunch Party
+                </button>
+                {{else}}
+                <button class="action-btn crunch-btn" data-action="toggleCrunch" data-id="{{selectedParty.id}}" title="Collapse party members into the party token">
+                    <i class="fa-solid fa-compress"></i> Crunch Party
+                </button>
+                {{/if}}
+                <button class="action-btn delete-btn" data-action="deleteParty" data-id="{{selectedParty.id}}" title="Delete this party from scene">
+                    <i class="fa-solid fa-trash"></i> Delete Party
+                </button>
+            </div>
+        </div>
+        {{/if}}
 
         <!-- Actor Template Selection & Creation Box -->
         <div class="party-creator-box">
@@ -64,13 +92,15 @@
         <ul class="individual-list">
             {{#each individuals}}
             <li class="individual-item {{#if this.selected}}selected{{/if}} {{#if this.inSelectedParty}}highlighted{{/if}}" data-action="selectIndividual" data-id="{{this.id}}" data-in-party="{{this.inParty}}">
-                <img src="{{this.img}}" width="32" height="32" />
+                <img src="{{this.img}}" width="34" height="34" />
                 <div class="token-info">
                     <span class="name">{{this.name}}</span>
                     {{#if this.partyName}}
-                    <span class="status in-party"><i class="fa-solid fa-link"></i> In: {{this.partyName}}</span>
+                    <span class="status in-party">
+                        <i class="fa-solid fa-link"></i> In: {{this.partyName}} {{#if this.isCrunched}}(Crunched){{else}}(On Canvas){{/if}}
+                    </span>
                     {{else}}
-                    <span class="status on-canvas"><i class="fa-solid fa-map-pin"></i> On Canvas</span>
+                    <span class="status on-canvas"><i class="fa-solid fa-map-pin"></i> Standalone Token</span>
                     {{/if}}
                 </div>
             </li>
@@ -80,10 +110,10 @@
         </ul>
 
         <div class="actions">
-            <button class="add-btn" data-action="addTokens" {{#unless canAdd}}disabled{{/unless}} title="Add selected canvas tokens into the chosen party">
+            <button class="add-btn" data-action="addTokens" {{#unless canAdd}}disabled{{/unless}} title="Assign selected tokens to the active party">
                 <i class="fa-solid fa-arrow-left"></i> Add to Party
             </button>
-            <button class="remove-btn" data-action="removeTokens" {{#unless canRemove}}disabled{{/unless}} title="Remove selected members from party and place them on the scene">
+            <button class="remove-btn" data-action="removeTokens" {{#unless canRemove}}disabled{{/unless}} title="Remove selected tokens from party">
                 <i class="fa-solid fa-arrow-right"></i> Remove
             </button>
         </div>
